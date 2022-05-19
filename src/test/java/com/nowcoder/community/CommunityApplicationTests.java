@@ -2,8 +2,10 @@ package com.nowcoder.community;
 
 
 import com.nowcoder.community.dao.DiscussPostMapper;
+import com.nowcoder.community.dao.LoginTicketMapper;
 import com.nowcoder.community.dao.UserMapper;
 import com.nowcoder.community.entity.DiscussPost;
+import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.util.MailClient;
@@ -19,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -88,6 +91,31 @@ public class CommunityApplicationTests implements ApplicationContextAware {
 		context.setVariable("username","BeiYu");//<p>Hallo,<span style="color:red;" th:text="${username}"></span></p>
 		String content = templateEngine.process("/mail/demo",context);
 		mailClient.setMailSender("670181662@qq.com","New Test", content);
+	}
+
+
+	//LoginTicktSQLtest
+	@Autowired
+	LoginTicketMapper loginTicketMapper;
+
+	@Test
+	public void testLoginTicket(){
+		LoginTicket loginTicket = new LoginTicket();
+		loginTicket.setUserId(101);
+		loginTicket.setTicket("abc");
+		loginTicket.setStatus(0);
+		loginTicket.setExpired(new Date(System.currentTimeMillis()+1000*60*10));
+		loginTicketMapper.insertLoginTicket(loginTicket);
+
+	}
+	@Test
+	public void testSelectLoginTicket(){
+		System.out.println(loginTicketMapper.selectByTicket("abc"));
+	}
+
+	@Test
+	public void testUpdateLoginTicket(){
+		loginTicketMapper.updateStatus("abc",1);
 	}
 }
 

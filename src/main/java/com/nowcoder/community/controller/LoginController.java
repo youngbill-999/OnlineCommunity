@@ -1,21 +1,21 @@
 package com.nowcoder.community.controller;
 
-
+import org.apache.commons.lang3.StringUtils;
 import com.google.code.kaptcha.Producer;
+
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
@@ -26,6 +26,9 @@ import java.util.Map;
 
 @Controller
 public class LoginController implements CommunityConstant {
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
     private  static final Logger logger = LoggerFactory.getLogger(LoginController.class);
     @RequestMapping(path = "/register", method = RequestMethod.GET)
     public String getRegister(){
@@ -76,7 +79,7 @@ public class LoginController implements CommunityConstant {
    {
             String text = producer.createText();
             BufferedImage image = producer.createImage(text);
-       session.setAttribute("kaptcha",text);
+       session.setAttribute("kaptcha",text);//store verification code into session
        response.setContentType("image/png");
        try {
            OutputStream os = response.getOutputStream();
@@ -84,8 +87,40 @@ public class LoginController implements CommunityConstant {
        } catch (IOException e) {
            logger.error("Failed to request a verification code!"+e.getMessage());
        }
-
-
    }
 
+   @RequestMapping(path = "/login", method=RequestMethod.POST)
+   /*
+   * 执行逻辑， 用户在浏览器中访问/login，界面，最开始是访问最上面用get方法标注的函数，在用户填登陆信息后则切换到
+   * 该方法中，login.html文件中标注了传入的参数username，password。。。，再调用该方法实现相关操作
+   * */
+    public String login(String username, String password, String code, boolean rememberme,
+   Model model, HttpSession session,HttpServletResponse response){
+        //get verification code from last func
+         String kaptcha = (String)session.getAttribute("kaptcha");
+         if(StringUtils.isBlank(kaptcha)||StringUtils.isBlank(code)||!kaptcha.equalsIgnoreCase(code)){
+               model.addAttribute("codeMsg","Incorrect Verification Code!");
+               return "/site/login";
+         }
+
+         //check id and password 这里涉及到用户是否点击保存登录状态，不同的选择有不同的expired time
+         int expiredSeconds=rememberme?REMEMBER_EXPIRED_SECOND:DEFAULT_EXPIRED_SECOND;
+         Map<String,Object> map=userService.login(username,password,expiredSeconds);
+         if(map.containsKey("ticket")){
+             Cookie cookie = new Cookie("ticket",map.get("ticket").toString());
+             cookie.setPath(contextPath);
+             cookie.setMaxAge(expiredSeconds);
+             response.addCookie(cookie);
+             return "redirect:/index";
+         }else{
+             model.addAttribute("usernameMsg",map.get("usernameMsg"));
+             model.addAttribute("passwordMsg",map.get("passwordMsg"));
+             return "/site/login";
+         }
+   }
+   @RequestMapping(path = "logout", method = RequestMethod.GET)
+    public String logout(@CookieValue("ticket") String ticket){
+             userService.logOut(ticket);
+             return "redirect:/login";
+   }
 }

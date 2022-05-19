@@ -1,6 +1,8 @@
 package com.nowcoder.community.service;
 
-import com.mysql.cj.util.StringUtils;
+import com.nowcoder.community.entity.LoginTicket;
+import org.apache.commons.lang3.StringUtils;
+import com.nowcoder.community.dao.LoginTicketMapper;
 import com.nowcoder.community.dao.UserMapper;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.util.CommunityConstant;
@@ -12,10 +14,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 
 import org.thymeleaf.context.Context;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+
+import java.util.*;
 
 @Service
 public class UserService implements CommunityConstant {
@@ -43,17 +43,17 @@ public class UserService implements CommunityConstant {
         {
             throw new IllegalArgumentException("Parameter couldn't be empty!");
         }
-        if(StringUtils.isEmptyOrWhitespaceOnly(user.getUsername()))
+        if(StringUtils.isBlank(user.getUsername()))
         {
             map.put("usernameMsg","The ID can not be empty!");
             return map;
         }
-        if(StringUtils.isEmptyOrWhitespaceOnly(user.getPassword()))
+        if(StringUtils.isBlank(user.getPassword()))
         {
             map.put("passwordeMsg","The passwod can not be empty!");
             return map;
         }
-        if(StringUtils.isEmptyOrWhitespaceOnly(user.getEmail()))
+        if(StringUtils.isBlank(user.getEmail()))
         {
             map.put("EmailMsg","The Email can not be empty!");
             return map;
@@ -111,5 +111,60 @@ public class UserService implements CommunityConstant {
             return ACTIVATION_FAILURE;
         }
 
+    }
+    //用户登陆
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+
+    public Map<String,Object> login(String username, String password, int expiredSeconds){
+        Map<String,Object> map=new HashMap<>();
+        if(StringUtils.isBlank(username))
+        {
+            map.put("usernameMsg","Username is empty!");
+            return map;
+        }
+        if(StringUtils.isBlank(password))
+        {
+            map.put("passwordMsg","Password is empty!");
+            return map;
+        }
+
+        //verify Account
+        User user=userMapper.selectByName(username);
+        if(user==null)
+        {
+            map.put("usernameMsg","User does not exist!");
+            return map;
+        }
+        if(user.getStatus()==0)
+        {
+            map.put("usernameMsg","This account is not activated!");
+            return map;
+        }
+
+        //verify Password
+        password = CommunityUtil.md5(password+user.getSalt());
+        if(!user.getPassword().equals(password))
+        {
+            map.put("passwordMsg","Incorrect Password!");
+            return map;
+        }
+
+        //generate Login Ticket
+        LoginTicket loginTicket=new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(CommunityUtil.genUUID());
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis()+expiredSeconds*1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+
+        map.put("ticket",loginTicket.getTicket());//return to browser
+        return map;
+    }
+
+    //退出登陆操作
+    public void logOut(String ticket)
+    {
+        loginTicketMapper.updateStatus(ticket,1);
     }
 }
