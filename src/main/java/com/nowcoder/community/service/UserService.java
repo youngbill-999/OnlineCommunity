@@ -1,6 +1,8 @@
 package com.nowcoder.community.service;
 
 import com.nowcoder.community.entity.LoginTicket;
+import com.nowcoder.community.entity.PassWordChange;
+import com.nowcoder.community.util.HostHolder;
 import org.apache.commons.lang3.StringUtils;
 import com.nowcoder.community.dao.LoginTicketMapper;
 import com.nowcoder.community.dao.UserMapper;
@@ -175,4 +177,53 @@ public class UserService implements CommunityConstant {
     public int updateHeader(int userId,String Url){
         return userMapper.updateHeader(userId,Url);
     }
+
+
+    public Map<String,Object> updatePass(PassWordChange passWordChange,int userId)
+    {
+        Map<String,Object> map = new HashMap<>();
+        if(passWordChange==null)
+        {
+            throw new IllegalArgumentException("Parameter couldn't be empty!");
+        }
+        if(StringUtils.isBlank(passWordChange.getOld_pass()))
+        {
+            map.put("oldPassMsg","please enter the old password!");
+            return map;
+        }
+        if(StringUtils.isBlank(passWordChange.getNew_pass()))
+        {
+            map.put("newPassMsg","here can not be empty!");
+            return map;
+        }
+        if(StringUtils.isBlank(passWordChange.getNew_pass2()))
+        {
+            map.put("newPassMsg","here can not be empty!");
+            return map;
+        }
+
+        //判断老密码是否对
+        User user = userMapper.selectById(userId);
+        String oldpassword = passWordChange.getOld_pass();
+        oldpassword = CommunityUtil.md5(oldpassword+user.getSalt());
+        if(!user.getPassword().equals(oldpassword))
+        {
+            map.put("oldPassMsg","Incorrect Password!");
+            return map;
+        }
+
+        //判断新密码是否一样
+        if(!passWordChange.getNew_pass().equals(passWordChange.getNew_pass2()))
+        {
+            map.put("newPassMsg","New Password must be same!");
+            return map;
+        }
+
+        //修改
+        userMapper.updatePassword(user.getId(), CommunityUtil.md5(passWordChange.getNew_pass()+user.getSalt()));
+        map.put("changeMsg","Success");
+        return map;
+
+    }
+
 }

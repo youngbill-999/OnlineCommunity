@@ -1,6 +1,7 @@
 package com.nowcoder.community.controller;
 
 import com.nowcoder.community.annotation.LoginRequiredAnnotation;
+import com.nowcoder.community.entity.PassWordChange;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityUtil;
@@ -23,6 +24,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -107,5 +110,27 @@ public class UserController {
         } catch (IOException e) {
            logger.error("Fault to read image!"+e.getMessage());
         }
+    }
+
+    //密码修改模块
+    @LoginRequiredAnnotation
+    @RequestMapping(path="/changepassword", method = RequestMethod.POST)
+    public String updatePassword(Model model,PassWordChange passWordChange){
+        User user=hostHolder.getUser();
+        int userId = user.getId();
+        Map<String,Object> map = userService.updatePass(passWordChange,userId);
+        if(map==null || map.isEmpty()){
+            model.addAttribute("oldPassMsg","Error");
+            return "/site/setting";
+        }
+        else if(map.get("changeMsg")!=null){
+            return "redirect:/logout";
+        }
+        else {
+            model.addAttribute("oldPassMsg",map.get("usernameMsg"));
+            model.addAttribute("newPassMsg",map.get("passwordeMsg"));
+            return "/site/setting";
+        }
+
     }
 }
