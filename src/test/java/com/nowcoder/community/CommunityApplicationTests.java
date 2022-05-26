@@ -9,6 +9,7 @@ import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.util.MailClient;
+import com.nowcoder.community.util.sensitiveFilter;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
@@ -116,6 +117,18 @@ public class CommunityApplicationTests implements ApplicationContextAware {
 	@Test
 	public void testUpdateLoginTicket(){
 		loginTicketMapper.updateStatus("abc",1);
+	}
+
+
+
+	@Autowired
+	com.nowcoder.community.util.sensitiveFilter sensitiveFilter;
+	@Test
+	public void filter(){
+		String text = "here we can吸毒，here we can嫖娼，here we can赌博！";
+		text=sensitiveFilter.filter(text);
+		System.out.println(text);
+
 	}
 }
 
