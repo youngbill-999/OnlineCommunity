@@ -130,5 +130,22 @@ public class CommunityApplicationTests implements ApplicationContextAware {
 		System.out.println(text);
 
 	}
+
+
+
+
+	@Test
+	public  void postInsertTest(){
+		DiscussPost discussPost = new DiscussPost();
+		discussPost.setUserId(11);
+		discussPost.setTitle("beiYU");
+		discussPost.setContent("YAMADE");
+		discussPost.setType(0);
+		discussPost.setCommentCount(0);
+		discussPost.setStatus(0);
+		discussPost.setId(100);
+		discussPostMapper.insertDiscussPost(discussPost);
+
+	}
 }
 

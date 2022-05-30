@@ -73,4 +73,14 @@ public class TestController {
         return "session name"+session.getAttribute("name");
     }
 
+
+    //ajax
+    @RequestMapping(path="/ajax", method = RequestMethod.POST)
+    @ResponseBody//由于是ajax控制的异步请求，服务器不用向浏览器返回html页面，而是json字符串转化的String
+    public  String testAJAX(String name, int age){
+        System.out.println(name);System.out.println(age);
+        return CommunityUtil.getJSONString(0,"ok");
+
+    }
+
 }
