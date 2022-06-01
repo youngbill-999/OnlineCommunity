@@ -8,6 +8,7 @@ import com.nowcoder.community.entity.DiscussPost;
 import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.service.AlphaService;
 import com.nowcoder.community.util.MailClient;
 import com.nowcoder.community.util.sensitiveFilter;
 import org.junit.jupiter.api.Test;
@@ -146,6 +147,20 @@ public class CommunityApplicationTests implements ApplicationContextAware {
 		discussPost.setId(100);
 		discussPostMapper.insertDiscussPost(discussPost);
 
+	}
+
+	@Autowired
+	AlphaService alphaService;
+	@Test
+	public void testAlphaService(){
+		Object obj = alphaService.save1();
+		System.out.println(obj);
+	}
+
+	@Test
+	public void testAlphaService2(){
+		Object obj = alphaService.save2();
+		System.out.println(obj);
 	}
 }
 
