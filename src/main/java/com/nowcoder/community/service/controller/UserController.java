@@ -1,4 +1,4 @@
-package com.nowcoder.community.controller;
+package com.nowcoder.community.service.controller;
 
 import com.nowcoder.community.annotation.LoginRequiredAnnotation;
 import com.nowcoder.community.entity.PassWordChange;
@@ -18,13 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 @Controller

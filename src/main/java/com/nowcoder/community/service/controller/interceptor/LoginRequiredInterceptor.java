@@ -1,4 +1,4 @@
-package com.nowcoder.community.controller.interceptor;
+package com.nowcoder.community.service.controller.interceptor;
 
 import com.nowcoder.community.annotation.LoginRequiredAnnotation;
 import com.nowcoder.community.util.HostHolder;

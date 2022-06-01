@@ -1,4 +1,4 @@
-package com.nowcoder.community.controller;
+package com.nowcoder.community.service.controller;
 
 import org.apache.commons.lang3.StringUtils;
 import com.google.code.kaptcha.Producer;
@@ -21,7 +21,6 @@ import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.http.HttpResponse;
 import java.util.Map;
 
 @Controller

@@ -1,4 +1,4 @@
-package com.nowcoder.community.controller;
+package com.nowcoder.community.service.controller;
 
 import com.nowcoder.community.entity.DiscussPost;
 import com.nowcoder.community.entity.Page;

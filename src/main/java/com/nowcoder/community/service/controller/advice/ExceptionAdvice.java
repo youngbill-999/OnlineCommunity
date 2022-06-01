@@ -1,4 +1,4 @@
-package com.nowcoder.community.controller.advice;
+package com.nowcoder.community.service.controller.advice;
 
 
 import com.nowcoder.community.util.CommunityUtil;
